@@ -687,7 +687,6 @@ require("lazy").setup({
 				emmet_ls = {},
 				html = {},
 				jsonls = {},
-				lus_la = {},
 				marksman = {},
 				prettier = {},
 				tailwindcss = {},
