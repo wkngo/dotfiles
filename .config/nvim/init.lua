@@ -673,7 +673,6 @@ require("lazy").setup({
 			local servers = {
 				-- clangd = {},
 				-- gopls = {},
-				-- pyright = {},
 				-- rust_analyzer = {},
 				-- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
 				--
@@ -683,7 +682,16 @@ require("lazy").setup({
 				-- But for many setups, the LSP (`ts_ls`) will work just fine
 				-- ts_ls = {},
 				--
-
+				pyright = {},
+				cssls = {},
+				emmet_ls = {},
+				html = {},
+				jsonls = {},
+				lus_la = {},
+				marksman = {},
+				prettier = {},
+				tailwindcss = {},
+				vtsls = {},
 				lua_ls = {
 					-- cmd = { ... },
 					-- filetypes = { ... },
@@ -769,10 +777,18 @@ require("lazy").setup({
 			formatters_by_ft = {
 				lua = { "stylua" },
 				-- Conform can also run multiple formatters sequentially
-				-- python = { "isort", "black" },
+				python = { "isort", "black" },
 				--
 				-- You can use 'stop_after_first' to run the first available formatter from the list
-				-- javascript = { "prettierd", "prettier", stop_after_first = true },
+				javascript = { "prettierd", "prettier", stop_after_first = true },
+				typescript = { "prettierd", "prettier", stop_after_first = true },
+				javascriptreact = { "prettierd", "prettier", stop_after_first = true },
+				typescriptreact = { "prettierd", "prettier", stop_after_first = true },
+				json = { "prettierd", "prettier", stop_after_first = true },
+				html = { "prettierd", "prettier", stop_after_first = true },
+				css = { "prettierd", "prettier", stop_after_first = true },
+				markdown = { "prettierd", "prettier", stop_after_first = true },
+				yaml = { "prettierd", "prettier", stop_after_first = true },
 			},
 		},
 	},
@@ -961,6 +977,14 @@ require("lazy").setup({
 				"query",
 				"vim",
 				"vimdoc",
+				"css",
+				"elm",
+				"gitcommit",
+				"javascript",
+				"typescript",
+				"tsx",
+				"json",
+				"json5",
 			},
 			-- Autoinstall languages that are not installed
 			auto_install = true,
