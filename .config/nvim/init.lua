@@ -670,6 +670,7 @@ require("lazy").setup({
 			--  - capabilities (table): Override fields in capabilities. Can be used to disable certain LSP features.
 			--  - settings (table): Override the default settings passed when initializing the server.
 			--        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
+			--
 			local servers = {
 				-- clangd = {},
 				-- gopls = {},
@@ -736,6 +737,9 @@ require("lazy").setup({
 						-- by the server configuration above. Useful when disabling
 						-- certain features of an LSP (for example, turning off formatting for ts_ls)
 						server.capabilities = vim.tbl_deep_extend("force", {}, capabilities, server.capabilities or {})
+						local nvim_lsp = require("lspconfig")
+						local root_dir = nvim_lsp.util.root_pattern(".git")
+						server.root_dir = root_dir
 						require("lspconfig")[server_name].setup(server)
 					end,
 				},
