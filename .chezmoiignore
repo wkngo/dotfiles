@@ -1,0 +1,8 @@
+{{ if ne .chezmoi.os "windows" }}
+.glzr
+{{ end }}
+
+{{ if eq .chezmoi.os "windows" }}
+.config/niri
+.config/ghostty
+{{ end }}

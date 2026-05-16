@@ -1,0 +1,18 @@
+[core]
+	editor = nvim
+  pager = delta
+[url "git@github.com:"]
+	insteadOf = https://github.com/
+[user]
+	name = William Ngo
+	email = wingo7971@gmail.com
+[credential "https://github.com"]
+	helper = 
+	helper = !/usr/bin/gh auth git-credential
+[credential "https://gist.github.com"]
+	helper = 
+	helper = !/usr/bin/gh auth git-credential
+[delta]
+  navigate = true
+  side-by-side = true
+  line-numbers = true
