@@ -20,7 +20,15 @@ sudo apt install -y \
   brightnessctl \
   git-delta \
   swaylock \
-  playerctl
+  playerctl \
+  eza \
+  bat
+
+# bat installs as batcat on Ubuntu — symlink to bat
+if command -v batcat &>/dev/null && ! command -v bat &>/dev/null; then
+  mkdir -p ~/.local/bin
+  ln -sf "$(which batcat)" ~/.local/bin/bat
+fi
 
 # Neovim (unstable PPA for latest stable release)
 if ! command -v nvim &>/dev/null; then
