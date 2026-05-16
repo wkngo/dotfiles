@@ -16,7 +16,8 @@ sudo apt install -y \
   pipx \
   ghostty \
   zoxide \
-  fzf
+  fzf \
+  brightnessctl
 
 # Neovim (unstable PPA for latest stable release)
 if ! command -v nvim &>/dev/null; then
@@ -62,6 +63,9 @@ if ! command -v niri &>/dev/null; then
   sudo install -m755 /tmp/niri-build/target/release/niri /usr/local/bin/niri
   rm -rf /tmp/niri-build
 fi
+
+# Backlight permissions (brightnessctl needs video group)
+sudo usermod -aG video "$USER"
 
 # DankMaterialShell
 if ! command -v dms &>/dev/null; then
