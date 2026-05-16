@@ -1,6 +1,8 @@
 #!/bin/bash
 set -e
 
+[[ "$(uname)" != "Linux" ]] && exit 0
+
 echo 'ACTION=="add", SUBSYSTEM=="backlight", RUN+="/bin/chgrp video /sys/class/backlight/%k/brightness", RUN+="/bin/chmod g+w /sys/class/backlight/%k/brightness"' | sudo tee /etc/udev/rules.d/90-backlight.rules
 
 sudo udevadm control --reload-rules

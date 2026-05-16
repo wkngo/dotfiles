@@ -1,53 +1,80 @@
 #!/bin/bash
 set -e
 
+OS="$(uname)"
 IS_WSL=false
 grep -qi microsoft /proc/version 2>/dev/null && IS_WSL=true
 
-# System packages (all environments)
-sudo apt install -y \
-  build-essential \
-  curl \
-  git \
-  unzip \
-  tar \
-  ripgrep \
-  fd-find \
-  golang-go \
-  clang \
-  clang-format \
-  pipx \
-  zoxide \
-  fzf \
-  git-delta \
-  eza \
-  bat \
-  direnv
+# ── macOS ──────────────────────────────────────────────────────────────────────
+if [[ "$OS" == "Darwin" ]]; then
+  if ! command -v brew &>/dev/null; then
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  fi
 
-# Native-only packages
-if [ "$IS_WSL" = false ]; then
+  brew install \
+    git \
+    ripgrep \
+    fd \
+    go \
+    clang-format \
+    pipx \
+    zoxide \
+    fzf \
+    git-delta \
+    eza \
+    bat \
+    direnv \
+    neovim
+
+  brew install --cask ghostty
+
+# ── Linux (apt) ────────────────────────────────────────────────────────────────
+elif [[ "$OS" == "Linux" ]]; then
   sudo apt install -y \
-    ghostty \
-    brightnessctl \
-    swaylock \
-    playerctl \
-    wl-clipboard
+    build-essential \
+    curl \
+    git \
+    unzip \
+    tar \
+    ripgrep \
+    fd-find \
+    golang-go \
+    clang \
+    clang-format \
+    pipx \
+    zoxide \
+    fzf \
+    git-delta \
+    eza \
+    bat \
+    direnv
+
+  if [ "$IS_WSL" = false ]; then
+    sudo apt install -y \
+      ghostty \
+      brightnessctl \
+      swaylock \
+      playerctl \
+      wl-clipboard
+  fi
+
+  # bat installs as batcat on Ubuntu — symlink to bat
+  if command -v batcat &>/dev/null && ! command -v bat &>/dev/null; then
+    mkdir -p ~/.local/bin
+    ln -sf "$(which batcat)" ~/.local/bin/bat
+  fi
+
+  # Neovim (unstable PPA for latest stable release)
+  if ! command -v nvim &>/dev/null; then
+    sudo add-apt-repository -y ppa:neovim-ppa/unstable
+    sudo apt update
+    sudo apt install -y neovim
+  fi
 fi
 
-# bat installs as batcat on Ubuntu — symlink to bat
-if command -v batcat &>/dev/null && ! command -v bat &>/dev/null; then
-  mkdir -p ~/.local/bin
-  ln -sf "$(which batcat)" ~/.local/bin/bat
-fi
+# ── Cross-platform ─────────────────────────────────────────────────────────────
 
-# Neovim (unstable PPA for latest stable release)
-if ! command -v nvim &>/dev/null; then
-  sudo add-apt-repository -y ppa:neovim-ppa/unstable
-  sudo apt update
-  sudo apt install -y neovim
-fi
-
-# nvm + Node.js (needed for many LSPs: pyright, vtsls, cssls, html, tailwindcss, prettierd)
+# nvm + Node.js (needed for many LSPs)
 if [ ! -f "$HOME/.nvm/nvm.sh" ]; then
   curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.3/install.sh | bash
 fi
@@ -56,7 +83,7 @@ export NVM_DIR="$HOME/.nvm"
 nvm install --lts
 nvm use --lts
 
-# Rust (needed for rust_analyzer and building some tools)
+# Rust
 if ! command -v rustup &>/dev/null; then
   curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
   source "$HOME/.cargo/env"
@@ -67,14 +94,35 @@ if ! command -v starship &>/dev/null; then
   curl -sS https://starship.rs/install.sh | sh -s -- --bin-dir ~/.local/bin -y
 fi
 
-# Python CLI tools via pipx (black, isort for conform.nvim)
+# Python CLI tools via pipx
 pipx ensurepath
 pipx install black
 pipx install isort
 
-# Native-only: Wayland compositor + shell
-if [ "$IS_WSL" = false ]; then
-  # Niri (scrollable-tiling Wayland compositor) — not in apt, build from source
+# JetBrains Mono Nerd Font
+if [[ "$OS" == "Darwin" ]]; then
+  FONT_DIR=~/Library/Fonts
+  font_installed() { ls "$FONT_DIR"/JetBrainsMono* &>/dev/null; }
+else
+  FONT_DIR=~/.local/share/fonts/JetBrainsMonoNerd
+  font_installed() { fc-list | grep -qi "JetBrainsMono Nerd"; }
+fi
+
+if ! font_installed; then
+  mkdir -p "$FONT_DIR"
+  curl -fLo /tmp/JetBrainsMono.zip "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/JetBrainsMono.zip"
+  unzip -o /tmp/JetBrainsMono.zip -d "$FONT_DIR"
+  [[ "$OS" == "Linux" ]] && fc-cache -fv
+  rm /tmp/JetBrainsMono.zip
+fi
+
+# Tmux plugins
+if [ ! -d "$HOME/.config/tmux/plugins/catppuccin/tmux" ]; then
+  git clone https://github.com/catppuccin/tmux.git "$HOME/.config/tmux/plugins/catppuccin/tmux"
+fi
+
+# ── Linux native-only ──────────────────────────────────────────────────────────
+if [[ "$OS" == "Linux" ]] && [ "$IS_WSL" = false ]; then
   if ! command -v niri &>/dev/null; then
     sudo apt install -y \
       gcc libudev-dev libgbm-dev libxkbcommon-dev libegl1-mesa-dev \
@@ -87,10 +135,8 @@ if [ "$IS_WSL" = false ]; then
     rm -rf /tmp/niri-build
   fi
 
-  # Backlight permissions (brightnessctl needs video group)
   sudo usermod -aG video "$USER"
 
-  # DankMaterialShell
   if ! command -v dms &>/dev/null; then
     git clone https://github.com/AvengeMedia/DankMaterialShell.git /tmp/dms-build
     (cd /tmp/dms-build && sudo make install)
@@ -98,22 +144,6 @@ if [ "$IS_WSL" = false ]; then
   fi
 fi
 
-# JetBrains Mono Nerd Font
-if ! fc-list | grep -qi "JetBrainsMono Nerd"; then
-  mkdir -p ~/.local/share/fonts
-  curl -fLo /tmp/JetBrainsMono.zip "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/JetBrainsMono.zip"
-  unzip -o /tmp/JetBrainsMono.zip -d ~/.local/share/fonts/JetBrainsMonoNerd
-  fc-cache -fv
-  rm /tmp/JetBrainsMono.zip
-fi
-
-# Tmux plugins
-if [ ! -d "$HOME/.config/tmux/plugins/catppuccin/tmux" ]; then
-  git clone https://github.com/catppuccin/tmux.git "$HOME/.config/tmux/plugins/catppuccin/tmux"
-fi
-
-# Bootstrap Neovim plugins headlessly:
-# 1. Install all lazy.nvim plugins (this also triggers mason-tool-installer on VimEnter)
-# 2. Install treesitter parsers
+# ── Bootstrap Neovim ───────────────────────────────────────────────────────────
 nvim --headless "+Lazy! sync" +qa 2>/dev/null || true
 nvim --headless "+TSUpdateSync" +qa 2>/dev/null || true
