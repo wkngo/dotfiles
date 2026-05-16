@@ -17,7 +17,10 @@ sudo apt install -y \
   ghostty \
   zoxide \
   fzf \
-  brightnessctl
+  brightnessctl \
+  git-delta \
+  swaylock \
+  playerctl
 
 # Neovim (unstable PPA for latest stable release)
 if ! command -v nvim &>/dev/null; then
