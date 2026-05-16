@@ -1,7 +1,10 @@
 #!/bin/bash
 set -e
 
-# System packages
+IS_WSL=false
+grep -qi microsoft /proc/version 2>/dev/null && IS_WSL=true
+
+# System packages (all environments)
 sudo apt install -y \
   build-essential \
   curl \
@@ -14,15 +17,22 @@ sudo apt install -y \
   clang \
   clang-format \
   pipx \
-  ghostty \
   zoxide \
   fzf \
-  brightnessctl \
   git-delta \
-  swaylock \
-  playerctl \
   eza \
-  bat
+  bat \
+  direnv
+
+# Native-only packages
+if [ "$IS_WSL" = false ]; then
+  sudo apt install -y \
+    ghostty \
+    brightnessctl \
+    swaylock \
+    playerctl \
+    wl-clipboard
+fi
 
 # bat installs as batcat on Ubuntu — symlink to bat
 if command -v batcat &>/dev/null && ! command -v bat &>/dev/null; then
@@ -62,27 +72,30 @@ pipx ensurepath
 pipx install black
 pipx install isort
 
-# Niri (scrollable-tiling Wayland compositor) — not in apt, build from source
-if ! command -v niri &>/dev/null; then
-  sudo apt install -y \
-    gcc libudev-dev libgbm-dev libxkbcommon-dev libegl1-mesa-dev \
-    libwayland-dev libinput-dev libdbus-1-dev libsystemd-dev libseat-dev \
-    libpipewire-0.3-dev libpango1.0-dev libdisplay-info-dev
-  source "$HOME/.cargo/env"
-  git clone https://github.com/niri-wm/niri /tmp/niri-build
-  (cd /tmp/niri-build && cargo build --release)
-  sudo install -m755 /tmp/niri-build/target/release/niri /usr/local/bin/niri
-  rm -rf /tmp/niri-build
-fi
+# Native-only: Wayland compositor + shell
+if [ "$IS_WSL" = false ]; then
+  # Niri (scrollable-tiling Wayland compositor) — not in apt, build from source
+  if ! command -v niri &>/dev/null; then
+    sudo apt install -y \
+      gcc libudev-dev libgbm-dev libxkbcommon-dev libegl1-mesa-dev \
+      libwayland-dev libinput-dev libdbus-1-dev libsystemd-dev libseat-dev \
+      libpipewire-0.3-dev libpango1.0-dev libdisplay-info-dev
+    source "$HOME/.cargo/env"
+    git clone https://github.com/niri-wm/niri /tmp/niri-build
+    (cd /tmp/niri-build && cargo build --release)
+    sudo install -m755 /tmp/niri-build/target/release/niri /usr/local/bin/niri
+    rm -rf /tmp/niri-build
+  fi
 
-# Backlight permissions (brightnessctl needs video group)
-sudo usermod -aG video "$USER"
+  # Backlight permissions (brightnessctl needs video group)
+  sudo usermod -aG video "$USER"
 
-# DankMaterialShell
-if ! command -v dms &>/dev/null; then
-  git clone https://github.com/AvengeMedia/DankMaterialShell.git /tmp/dms-build
-  (cd /tmp/dms-build && sudo make install)
-  rm -rf /tmp/dms-build
+  # DankMaterialShell
+  if ! command -v dms &>/dev/null; then
+    git clone https://github.com/AvengeMedia/DankMaterialShell.git /tmp/dms-build
+    (cd /tmp/dms-build && sudo make install)
+    rm -rf /tmp/dms-build
+  fi
 fi
 
 # JetBrains Mono Nerd Font

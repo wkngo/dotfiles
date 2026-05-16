@@ -41,6 +41,9 @@ autoload -Uz compinit && compinit
 # Starship prompt
 eval "$(starship init zsh)"
 
+# direnv
+eval "$(direnv hook zsh)"
+
 # zoxide (smarter cd)
 eval "$(zoxide init zsh)"
 
