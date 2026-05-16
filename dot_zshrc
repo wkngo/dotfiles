@@ -42,7 +42,7 @@ autoload -Uz compinit && compinit
 eval "$(starship init zsh)"
 
 # zoxide (smarter cd)
-eval "$(zoxide init zsh --cmd cd)"
+eval "$(zoxide init zsh)"
 
 # fzf (fuzzy finder — Ctrl+R for history, Ctrl+T for files)
 source <(fzf --zsh)
