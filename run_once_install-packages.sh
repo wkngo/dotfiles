@@ -43,7 +43,6 @@ elif [[ "$OS" == "Linux" ]]; then
     clang-format \
     pipx \
     zoxide \
-    fzf \
     git-delta \
     eza \
     bat \
@@ -73,6 +72,18 @@ elif [[ "$OS" == "Linux" ]]; then
 fi
 
 # ── Cross-platform ─────────────────────────────────────────────────────────────
+
+# fzf (latest binary — apt version on Ubuntu is too old for --zsh flag)
+if ! command -v fzf &>/dev/null || ! fzf --zsh &>/dev/null 2>&1; then
+  FZF_VERSION=$(curl -s https://api.github.com/repos/junegunn/fzf/releases/latest | grep '"tag_name"' | cut -d'"' -f4 | tr -d 'v')
+  if [[ "$OS" == "Darwin" ]]; then
+    brew install fzf
+  else
+    curl -fLo /tmp/fzf.tar.gz "https://github.com/junegunn/fzf/releases/download/v${FZF_VERSION}/fzf-${FZF_VERSION}-linux_amd64.tar.gz"
+    tar -xzf /tmp/fzf.tar.gz -C ~/.local/bin
+    rm /tmp/fzf.tar.gz
+  fi
+fi
 
 # nvm + Node.js (needed for many LSPs)
 if [ ! -f "$HOME/.nvm/nvm.sh" ]; then

@@ -30,10 +30,10 @@ export NVM_DIR="$HOME/.nvm"
 export PATH="$HOME/.local/bin:$HOME/bin:$PATH"
 
 # SSH agent
-if ! pgrep -u "$USER" ssh-agent > /dev/null; then
-    eval "$(ssh-agent -s)"
+if [ -z "$SSH_AUTH_SOCK" ]; then
+    eval "$(ssh-agent -s)" &>/dev/null
 fi
-ssh-add -l &>/dev/null || ssh-add ~/.ssh/github
+ssh-add -l &>/dev/null || ssh-add ~/.ssh/github &>/dev/null
 
 # Completion
 autoload -Uz compinit && compinit
@@ -48,4 +48,9 @@ eval "$(direnv hook zsh)"
 eval "$(zoxide init zsh)"
 
 # fzf (fuzzy finder — Ctrl+R for history, Ctrl+T for files)
-source <(fzf --zsh)
+if command -v fzf &>/dev/null; then
+    source <(fzf --zsh 2>/dev/null) || {
+        [ -f /usr/share/doc/fzf/examples/key-bindings.zsh ] && source /usr/share/doc/fzf/examples/key-bindings.zsh
+        [ -f /usr/share/doc/fzf/examples/completion.zsh ]   && source /usr/share/doc/fzf/examples/completion.zsh
+    }
+fi
