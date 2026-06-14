@@ -25,7 +25,8 @@ if [[ "$OS" == "Darwin" ]]; then
     bat \
     direnv \
     neovim \
-    zsh
+    zsh \
+    tmux
 
   brew install --cask ghostty
 
@@ -48,7 +49,8 @@ elif [[ "$OS" == "Linux" ]]; then
     eza \
     bat \
     direnv \
-    zsh
+    zsh \
+    tmux
 
   if [ "$IS_WSL" = false ]; then
     sudo apt install -y \
