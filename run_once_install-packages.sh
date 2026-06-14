@@ -132,29 +132,6 @@ if [ ! -d "$HOME/.config/tmux/plugins/catppuccin/tmux" ]; then
   git clone https://github.com/catppuccin/tmux.git "$HOME/.config/tmux/plugins/catppuccin/tmux"
 fi
 
-# ── Linux native-only ──────────────────────────────────────────────────────────
-if [[ "$OS" == "Linux" ]] && [ "$IS_WSL" = false ]; then
-  if ! command -v niri &>/dev/null; then
-    sudo apt install -y \
-      gcc libudev-dev libgbm-dev libxkbcommon-dev libegl1-mesa-dev \
-      libwayland-dev libinput-dev libdbus-1-dev libsystemd-dev libseat-dev \
-      libpipewire-0.3-dev libpango1.0-dev libdisplay-info-dev
-    source "$HOME/.cargo/env"
-    git clone https://github.com/niri-wm/niri /tmp/niri-build
-    (cd /tmp/niri-build && cargo build --release)
-    sudo install -m755 /tmp/niri-build/target/release/niri /usr/local/bin/niri
-    rm -rf /tmp/niri-build
-  fi
-
-  sudo usermod -aG video "$USER"
-
-  if ! command -v dms &>/dev/null; then
-    git clone https://github.com/AvengeMedia/DankMaterialShell.git /tmp/dms-build
-    (cd /tmp/dms-build && make build && sudo make install)
-    rm -rf /tmp/dms-build
-  fi
-fi
-
 # ── Bootstrap Neovim ───────────────────────────────────────────────────────────
 nvim --headless "+Lazy! sync" +qa 2>/dev/null || true
 nvim --headless "+TSUpdateSync" +qa 2>/dev/null || true
