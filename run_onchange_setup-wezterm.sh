@@ -27,7 +27,8 @@ config.font_size = 12
 local act = wezterm.action
 config.keys = {
 	{ key = 'V', mods = 'CTRL', action = act.PasteFrom 'Clipboard' },
-	{ key = 'V', mods = 'CTRL', action = act.PasteFrom 'PrimarySelection' }
+	{ key = 'V', mods = 'CTRL', action = act.PasteFrom 'PrimarySelection' },
+	{ key = 'Enter', mods = 'SHIFT', action = wezterm.action{SendString="\x1b\r"} },
 }
 
 config.use_fancy_tab_bar = true
