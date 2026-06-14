@@ -150,7 +150,7 @@ if [[ "$OS" == "Linux" ]] && [ "$IS_WSL" = false ]; then
 
   if ! command -v dms &>/dev/null; then
     git clone https://github.com/AvengeMedia/DankMaterialShell.git /tmp/dms-build
-    (cd /tmp/dms-build && sudo make install)
+    (cd /tmp/dms-build && make build && sudo make install)
     rm -rf /tmp/dms-build
   fi
 fi
