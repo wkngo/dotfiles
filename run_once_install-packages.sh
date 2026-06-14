@@ -24,7 +24,8 @@ if [[ "$OS" == "Darwin" ]]; then
     eza \
     bat \
     direnv \
-    neovim
+    neovim \
+    zsh
 
   brew install --cask ghostty
 
@@ -46,7 +47,8 @@ elif [[ "$OS" == "Linux" ]]; then
     git-delta \
     eza \
     bat \
-    direnv
+    direnv \
+    zsh
 
   if [ "$IS_WSL" = false ]; then
     sudo apt install -y \
@@ -72,6 +74,11 @@ elif [[ "$OS" == "Linux" ]]; then
 fi
 
 # ── Cross-platform ─────────────────────────────────────────────────────────────
+
+# Set zsh as the default shell
+if [ "$SHELL" != "$(command -v zsh)" ]; then
+  chsh -s "$(command -v zsh)" "$USER"
+fi
 
 # fzf (latest binary — apt version on Ubuntu is too old for --zsh flag)
 if ! command -v fzf &>/dev/null || ! fzf --zsh &>/dev/null 2>&1; then
