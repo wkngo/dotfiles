@@ -5,6 +5,9 @@ OS="$(uname)"
 IS_WSL=false
 grep -qi microsoft /proc/version 2>/dev/null && IS_WSL=true
 
+IS_ARCH=false
+[[ "$OS" == "Linux" ]] && [[ -f /etc/arch-release ]] && IS_ARCH=true
+
 # ── macOS ──────────────────────────────────────────────────────────────────────
 if [[ "$OS" == "Darwin" ]]; then
   if ! command -v brew &>/dev/null; then
@@ -29,6 +32,48 @@ if [[ "$OS" == "Darwin" ]]; then
     tmux
 
   brew install --cask ghostty
+
+# ── Linux (Arch) ───────────────────────────────────────────────────────────────
+elif [[ "$IS_ARCH" == "true" ]]; then
+  sudo pacman -S --noconfirm --needed \
+    base-devel \
+    curl \
+    git \
+    unzip \
+    tar \
+    ripgrep \
+    fd \
+    go \
+    clang \
+    python-pipx \
+    zoxide \
+    fzf \
+    git-delta \
+    eza \
+    bat \
+    direnv \
+    neovim \
+    zsh \
+    tmux
+
+  if [ "$IS_WSL" = false ]; then
+    sudo pacman -S --noconfirm --needed \
+      brightnessctl \
+      swaylock \
+      playerctl \
+      wl-clipboard
+
+    # ghostty is in the AUR
+    if ! command -v ghostty &>/dev/null; then
+      if command -v paru &>/dev/null; then
+        paru -S --noconfirm ghostty
+      elif command -v yay &>/dev/null; then
+        yay -S --noconfirm ghostty
+      else
+        echo "WARNING: No AUR helper found. Install ghostty manually: paru -S ghostty"
+      fi
+    fi
+  fi
 
 # ── Linux (apt) ────────────────────────────────────────────────────────────────
 elif [[ "$OS" == "Linux" ]]; then
@@ -82,12 +127,14 @@ if [ "$SHELL" != "$(command -v zsh)" ]; then
   chsh -s "$(command -v zsh)" "$USER"
 fi
 
-# fzf (latest binary — apt version on Ubuntu is too old for --zsh flag)
+# fzf: Arch and macOS install via package manager above; apt version is too old for --zsh
 if ! command -v fzf &>/dev/null || ! fzf --zsh &>/dev/null 2>&1; then
-  FZF_VERSION=$(curl -s https://api.github.com/repos/junegunn/fzf/releases/latest | grep '"tag_name"' | cut -d'"' -f4 | tr -d 'v')
   if [[ "$OS" == "Darwin" ]]; then
     brew install fzf
+  elif [[ "$IS_ARCH" == "true" ]]; then
+    sudo pacman -S --noconfirm --needed fzf
   else
+    FZF_VERSION=$(curl -s https://api.github.com/repos/junegunn/fzf/releases/latest | grep '"tag_name"' | cut -d'"' -f4 | tr -d 'v')
     curl -fLo /tmp/fzf.tar.gz "https://github.com/junegunn/fzf/releases/download/v${FZF_VERSION}/fzf-${FZF_VERSION}-linux_amd64.tar.gz"
     tar -xzf /tmp/fzf.tar.gz -C ~/.local/bin
     rm /tmp/fzf.tar.gz
