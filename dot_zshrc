@@ -26,6 +26,12 @@ export NVM_DIR="$HOME/.nvm"
 # PATH
 export PATH="$HOME/.local/bin:$HOME/bin:$PATH"
 
+# Java / Maven installed under ~/.local/opt (no sudo)
+if [ -d "$HOME/.local/opt/java" ]; then
+    export JAVA_HOME="$HOME/.local/opt/java"
+    export PATH="$JAVA_HOME/bin:$HOME/.local/opt/maven/bin:$PATH"
+fi
+
 # SSH agent
 if [ -z "$SSH_AUTH_SOCK" ]; then
     eval "$(ssh-agent -s)" &>/dev/null
