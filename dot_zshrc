@@ -1,6 +1,3 @@
-# Auto-launch tmux
-[ -z "$TMUX" ] && exec tmux
-
 # History
 HISTSIZE=10000
 HISTFILE=~/.zsh_history
