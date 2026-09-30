@@ -15,6 +15,14 @@ if [ -d "$WIN_HOME" ]; then
   mkdir -p "$(dirname "$DEST")"
   cp "{{ .chezmoi.sourceDir }}/dot_glzr/glazewm/config.yaml" "$DEST"
   echo "GlazeWM config deployed to $DEST"
+
+  # Launch GlazeWM at login via a shortcut in the user's Startup folder
+  powershell.exe -NoProfile -Command '
+    $lnk = Join-Path ([Environment]::GetFolderPath("Startup")) "GlazeWM.lnk"
+    $s = (New-Object -ComObject WScript.Shell).CreateShortcut($lnk)
+    $s.TargetPath = "$env:ProgramFiles\glzr.io\GlazeWM\glazewm.exe"
+    $s.Save()
+  ' && echo "GlazeWM added to Windows startup"
 else
   echo "---"
   echo "MANUAL STEP REQUIRED: Could not find Windows home at $WIN_HOME"
