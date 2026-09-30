@@ -8,3 +8,8 @@ README.md
 .config/niri
 .config/ghostty
 {{ end }}
+
+{{ if (.chezmoi.kernel.osrelease | lower | contains "microsoft") }}
+.config/wezterm
+setup-wezterm.sh
+{{ end }}

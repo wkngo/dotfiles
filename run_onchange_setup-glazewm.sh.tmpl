@@ -1,0 +1,23 @@
+#!/bin/bash
+# Deploy GlazeWM config to the Windows filesystem — only applicable when running WSL on Windows.
+# On native Windows, chezmoi manages ~/.glzr/glazewm/config.yaml directly.
+# Re-runs on `chezmoi apply` whenever the config changes.
+# config hash: {{ include "dot_glzr/glazewm/config.yaml" | sha256sum }}
+
+# Only applicable under WSL
+grep -qi microsoft /proc/version 2>/dev/null || exit 0
+
+WIN_USER=$(cmd.exe /c "echo %USERNAME%" 2>/dev/null | tr -d '\r\n')
+WIN_HOME="/mnt/c/Users/${WIN_USER}"
+DEST="${WIN_HOME}/.glzr/glazewm/config.yaml"
+
+if [ -d "$WIN_HOME" ]; then
+  mkdir -p "$(dirname "$DEST")"
+  cp "{{ .chezmoi.sourceDir }}/dot_glzr/glazewm/config.yaml" "$DEST"
+  echo "GlazeWM config deployed to $DEST"
+else
+  echo "---"
+  echo "MANUAL STEP REQUIRED: Could not find Windows home at $WIN_HOME"
+  echo "Copy dot_glzr/glazewm/config.yaml manually to: C:\\Users\\<you>\\.glzr\\glazewm\\config.yaml"
+  echo "---"
+fi
