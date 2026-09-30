@@ -1,0 +1,24 @@
+#!/bin/bash
+# Deploy yasb config to the Windows filesystem — only applicable when running WSL on Windows.
+# On native Windows, chezmoi manages ~/.config/yasb directly.
+# Re-runs on `chezmoi apply` whenever the config changes.
+# config hash: {{ include "dot_config/yasb/config.yaml" | sha256sum }}
+# styles hash: {{ include "dot_config/yasb/styles.css" | sha256sum }}
+
+# Only applicable under WSL
+grep -qi microsoft /proc/version 2>/dev/null || exit 0
+
+WIN_USER=$(cmd.exe /c "echo %USERNAME%" 2>/dev/null | tr -d '\r\n')
+WIN_HOME="/mnt/c/Users/${WIN_USER}"
+DEST="${WIN_HOME}/.config/yasb"
+
+if [ -d "$WIN_HOME" ]; then
+  mkdir -p "$DEST"
+  cp "{{ .chezmoi.sourceDir }}/dot_config/yasb/config.yaml" "{{ .chezmoi.sourceDir }}/dot_config/yasb/styles.css" "$DEST/"
+  echo "yasb config deployed to $DEST"
+else
+  echo "---"
+  echo "MANUAL STEP REQUIRED: Could not find Windows home at $WIN_HOME"
+  echo "Copy dot_config/yasb/{config.yaml,styles.css} manually to: C:\\Users\\<you>\\.config\\yasb\\"
+  echo "---"
+fi

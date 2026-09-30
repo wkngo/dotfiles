@@ -2,6 +2,7 @@ README.md
 
 {{ if ne .chezmoi.os "windows" }}
 .glzr
+.config/yasb
 {{ end }}
 
 {{ if eq .chezmoi.os "windows" }}
